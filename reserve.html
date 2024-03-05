@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Insert title here</title>
+<link href="./css/bootstrap.min.css" rel="stylesheet" >
+<link href="./css/custom.css" rel="stylesheet" >
+<script src="./js/jquery-3.7.1.js"></script>
+<script src="./js/bootstrap.bundle.min.js"></script>
+<style>
+</style>
+</head>
+<body>
+<h1>予約</h1>
+<hr>
+<!-- 変更ついて、すでに予約中なら、終了時間しか変更できない -->
+<div class="divRoomNumber">
+  <h2>住戸番号を選んでください</h2>
+  <button type="button" class="btn btn-primary roomNumberBtn">101</button><br>
+  <button type="button" class="btn btn-primary roomNumberBtn">201</button>
+  <button type="button" class="btn btn-primary roomNumberBtn">202</button>
+  <button type="button" class="btn btn-primary roomNumberBtn">203</button><br>
+  <button type="button" class="btn btn-primary roomNumberBtn">301</button>
+  <button type="button" class="btn btn-primary roomNumberBtn">302</button>
+  <button type="button" class="btn btn-primary roomNumberBtn">303</button><br>
+</div>
+
+<form class="row g-3" id="form" name="form">
+
+  <div class="col-10">
+    <label for="" class="form-label">住戸番号</label>
+    <button type="button" class="btn btn-primary repick">選びなおす</button>
+    <input class="form-control" type="text" value="101" readonly>
+  </div>
+
+  <div class="col-4">
+    <label for="" class="form-label">利用開始日</label>
+    <input type="date" class="form-control" placeholder="yyyy/mm/dd">
+  </div>
+  <div class="col-6">
+    <label for="inputState" class="form-label">利用開始時間</label>
+    <div class="input-group">
+      <select class="form-select">
+        <option selected></option>
+        <option>0</option>
+        <option>1</option>
+        <option>23</option>
+      </select>
+      <span class="input-group-text">:</span>
+      <select class="form-select">
+        <option selected></option>
+        <option>00</option>
+        <option>15</option>
+        <option>30</option>
+        <option>45</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="col-4">
+    <label for="" class="form-label">利用終了日</label>
+    <input type="date" class="form-control" placeholder="yyyy/mm/dd">
+  </div>
+  <div class="col-6">
+    <label for="inputState" class="form-label">利用終了時間</label>
+    <div class="input-group">
+      <select class="form-select">
+        <option selected></option>
+        <option>0</option>
+        <option>1</option>
+        <option>23</option>
+      </select>
+      <span class="input-group-text">:</span>
+      <select class="form-select">
+        <option selected></option>
+        <option>00</option>
+        <option>15</option>
+        <option>30</option>
+        <option>45</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="col-10">
+    <label for="" class="form-label">登録ナンバー</label>
+    <input class="form-control" type="text" value="">
+  </div>
+
+  <div class="col-10">
+    <label for="" class="form-label">車名</label>
+    <input class="form-control" type="text" value="">
+  </div>
+
+  <div class="col-10">
+    <label for="" class="form-label">備考</label>
+    <input class="form-control" type="text" value="">
+  </div>
+  <button type="button" class="btn btn-danger" id="cancel">取り消し</button>
+  <button type="button" class="btn btn-primary" id="submit">登録/更新</button>
+</form>
+<div class="row g-3" style="margin-top:5px;">
+  <button type="button" class="btn btn-secondary" id="back">戻る</button>
+</div>
+
+</body>
+<script>
+$('#submit').on('click', function() {
+	location.href="index.html";
+});
+$('#back').on('click', function() {
+	location.href="index.html";
+});
+$('.roomNumberBtn').on('click', function() {
+	$('.divRoomNumber').hide();
+	$('#form').show();
+});
+$('.repick').on('click', function() {
+	$('.divRoomNumber').show();
+	$('#form').hide();
+});
+$(document).ready(function(){
+	$('#form').hide();
+});
+</script>
+</html>

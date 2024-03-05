@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Insert title here</title>
+<link href="./css/bootstrap.min.css" rel="stylesheet" >
+<link href="./css/custom.css" rel="stylesheet" >
+<script src="./js/jquery-3.7.1.js"></script>
+<script src="./js/bootstrap.bundle.min.js"></script>
+<style>
+.height-60 {
+  height:60px;
+}
+
+.date-header, .time-header {
+  height:50px;
+}
+
+.row>.time-col, .row>.reservation-col {
+  padding-left:0px;
+  padding-right:0px;
+}
+.occupied {
+  background-color: rgb(253 13 13 / 25%);
+  cursor: pointer;
+}
+.canReserve {
+  cursor: pointer;
+}
+body {
+  padding:10px;
+}
+</style>
+</head>
+<body>
+<h1>予約一覧</h1>
+<div class="container text-center">
+  <div class="row col-11">
+    <div class="col-4"><button type="button" class="btn btn-primary">三日前</button></div>
+    <div class="col-4">
+      <input  class="form-control" type="date" id="selectDate" value="2024-03-05">
+    </div>
+    <div class="col-4"><button type="button" class="btn btn-primary">三日後</button></div>
+  </div>
+</div>
+<hr>
+<button type="button" class="btn btn-primary" id="new">予約</button>
+<div class="container" style="margin-top:10px;margin-bottom:10px;">
+  <div class="detail row">
+    <div class="time-col col-2 border">
+      <div class="border time-header"></div>
+      <!-- <div class="time height-60 border">0:00</div> -->
+    </div>
+    <!--
+    <div class="reservation-col 20240304 col-3 border" >
+      <div class="date height-30 border">2024/03/04 (✕)</div>
+    </div>
+     -->
+  </div>
+</div>
+<button type="button" class="btn btn-primary" id="new2">予約</button>
+<br>
+<pre>
+【注意事項】
+★
+★
+★
+</pre>
+
+<div class="modal" id="viewModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">予約確認</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container">
+          <div class="row">
+            <div class="col-4 fw-bolder">住戸番号</div>
+            <div class="col-8">1111</div>
+          </div>
+          <div class="row">
+            <div class="col-4 fw-bolder">利用開始時間</div>
+            <div class="col-8">2024/03/05 hh:mm</div>
+          </div>
+          <div class="row">
+            <div class="col-4 fw-bolder">利用終了時間</div>
+            <div class="col-8">2024/03/05 hh:mm</div>
+          </div>
+          <div class="row">
+            <div class="col-4 fw-bolder">登録ナンバー</div>
+            <div class="col-8"></div>
+          </div>
+          <div class="row">
+            <div class="col-4 fw-bolder">車名</div>
+            <div class="col-8"></div>
+          </div>
+          <div class="row">
+            <div class="col-4 fw-bolder">備考</div>
+            <div class="col-8"><pre>asdss</pre></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+<script>
+const hourlabels = [];
+for(var i=0;i<24;i++){
+	hourlabels.push(i+":"+"00");
+}
+const BASIC_HEIGHT=60;
+const HEIGHT_SCALE=15;
+
+let datas = new Object();
+datas["1"] = {"startdate": '20240305', "starth": '1', "startm": '30', "enddate": '20240305', "endh":'3', "endm":'15', "roomNumber":'101'};
+datas["2"] = {"startdate": '20240305', "starth": '3', "startm": '15', "enddate": '20240306', "endh":'3', "endm":'15', "roomNumber":'202'};
+datas["3"] = {"startdate": '20240306', "starth": '7', "startm": '00', "enddate": '20240306', "endh":'8', "endm":'00', "roomNumber":'9999'};
+
+let reservations = new Object();
+let dayOfWeekArr = [ "日", "月", "火", "水", "木", "金", "土" ];
+
+$(document).ready(function(){
+	// 時間一覧
+	for(var i=0;i<hourlabels.length;i++) {
+		$('.time-col').append('<div class="time height-60 border">'+hourlabels[i]+'</div>');
+	}
+
+	// 予約配列初期化
+	let date = new Date();
+	let index = 0;
+	for(var i=0;i<3;i++) {
+		var strdatetime = date.toLocaleDateString("ja-JP", {year: "numeric",month: "2-digit",day: "2-digit"}).replaceAll('/', '');
+
+		let arr2 = new Object();
+		for(var h=0;h<24;h++) {
+			for(var m=0;m<60;m+=15){
+				var hhmm = ''+("0" + h).slice (-2) + ("0" + m).slice (-2);
+				var curdatetime = strdatetime + hhmm;
+
+				arr2[hhmm] = "0";
+			}
+		}
+		reservations[strdatetime] = arr2;
+
+		date.setDate(date.getDate() + 1);
+	}
+
+	// 予約設定
+	for (let id in datas) {
+		var data = datas[id];
+		var startdate = data["startdate"];
+		var enddate = data["enddate"];
+		var st = new Date(startdate.substring(0,4), startdate.substring(4,6)-1, startdate.substring(6,8), parseInt(data["starth"]), parseInt(data["startm"]), 0);
+		var ed = new Date(enddate.substring(0,4), enddate.substring(4,6)-1, enddate.substring(6,8), parseInt(data["endh"]), parseInt(data["endm"]), 0);
+		while(st.getTime() < ed.getTime()) {
+			var strdatetime = st.toLocaleDateString("ja-JP", {year: "numeric",month: "2-digit",day: "2-digit"}).replaceAll('/', '');
+			var hh = ("0" + (st.getHours())).slice (-2);
+			var mm = ("0" + st.getMinutes()).slice (-2);
+			reservations[strdatetime][hh+mm] = id;
+			st.setMinutes(st.getMinutes()+15);
+		}
+	}
+	writeReservations();
+	$('.canReserve').on('click', function() {
+		location.href="reserve.html";
+	});
+	$('.occupied').on('click', function() {
+		const viewModal = new bootstrap.Modal(document.getElementById('viewModal'));
+		viewModal.show();
+	});
+	$('#new, #new2').on('click', function() {
+		location.href="reserve.html";
+	});
+});
+
+// 予約を画面に設定
+function writeReservations() {
+	let prevDt = "";
+	let div1;
+	for(let dt in reservations) {
+		// ヘッダー日付設定
+		if(dt != prevDt) {
+			var dtt = new Date(dt.substring(0,4), dt.substring(4,6)-1, dt.substring(6,8));
+			var strt = dtt.toLocaleDateString("ja-JP", {year: "numeric",month: "2-digit",day: "2-digit"});
+			div1 = document.createElement('div');
+			div1.className = "reservation-col " + strt.replaceAll('/', '') + " col-3 border";
+			var div2 = document.createElement('div');
+			div2.className = "date border date-header";
+			div2.innerText =  strt + " (" + dayOfWeekArr[dtt.getDay()] + ")";
+			$('.detail').append(div1);
+			div1.append(div2);
+		}
+		let prevTime = "";
+		let prevId = "0";
+		let height = 0;
+		times = Object.keys(reservations[dt]);
+		times.sort()
+
+		// 予約を画面に設定
+		for(let time of times) {
+			var hh = time.substring(0,2);
+			var mm = time.substring(2,4);
+			var id = reservations[dt][time];
+
+			if(prevId != "0"  && prevId != id) {
+				var div3 = document.createElement('div');
+				div3.className = "occupied border";
+				div3.style = "height:"+height+"px;";
+
+				div3.setAttribute("attr-id", prevId);
+				if(datas[prevId]["enddate"] != datas[prevId]["startdate"] && datas[prevId]["enddate"] == dt) {
+					div3.innerText = "0:00" + " ～ " + datas[prevId]["endh"]+":"+datas[prevId]["endm"];
+				}else {
+					div3.innerText = datas[prevId]["starth"]+":"+datas[prevId]["startm"] + " ～ " + datas[prevId]["endh"]+":"+datas[prevId]["endm"];
+				}
+				div3.innerText += "\r\n住戸番号: " + datas[prevId]["roomNumber"];
+
+				div1.append(div3);
+				height = 0;
+			}
+
+			if(id != "0") {
+				height += HEIGHT_SCALE;
+				prevId = id;
+				if(time == "2345") {
+					var div3 = document.createElement('div');
+					div3.className = "occupied border";
+					div3.style = "height:"+height+"px;";
+
+					div3.setAttribute("attr-id", id);
+					div3.innerText = datas[id]["starth"]+":"+datas[id]["startm"] + " ～ " + "24:00";
+					div3.innerText += "\r\n住戸番号: " + datas[id]["roomNumber"];
+
+					div1.append(div3);
+					height = 0;
+				}
+			}else {
+				prevId = "0";
+				var div3 = document.createElement('div');
+				div3.className = "canReserve border";
+				div3.style = "height:"+HEIGHT_SCALE+"px;";
+				div3.setAttribute("attr-time", time);
+				div1.append(div3);
+			}
+		}
+	}
+
+
+}
+
+
+</script>
+</html>
